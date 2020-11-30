@@ -9,11 +9,9 @@ import (
 var editTemplate = template.Must(template.ParseFiles("static/index.html"))
 
 // Example Jsonnet to show people on first visit
-const defaultJsonnet = `local first = "hello";
-
+const defaultJsonnet = `// welcome to Jsonnet demo !
 {
-  second:: "world",
-  out: "%s %s!" % [first, self.second],
+  "hello": "Wonderful Jsonnet world",
 }`
 
 type editData struct {

@@ -3,8 +3,8 @@
 
 <head>
   <title>Jsonnet Playground</title>
-  <meta charset="utf-8"/>
-  <link rel="shortcut icon" type="image/png" href="/static/favicon.png"/>
+  <meta charset="utf-8" />
+  <link rel="shortcut icon" type="image/png" href="/static/favicon.png" />
   <link rel="stylesheet" href="/static/node_modules/codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="/static/css/custom.css">
   <script src="/static/node_modules/codemirror/lib/codemirror.js"></script>
@@ -15,11 +15,14 @@
 <body>
   <div class="container">
     <div class="title">
-      <h2>Jsonnet Playground</h2>
       <button class="buttons" id="run-btn">Run</button>
-      <button class="buttons" id="share-btn">Share</button>
-      <button class="buttons" id="about-btn">About</button>
-      <a id="share-link"></a>
+      <button class="buttons" id="share-btn">Full Screen</button>
+      <button class="buttons" id="load-1">1-variables</button>
+      <button class="buttons" id="load-2">2-functions</button>
+      <button class="buttons" id="load-3">3-plus</button>
+      <button class="buttons" id="load-4">4-mixin</button>
+      <button class="buttons" id="load-5">5-template</button>
+      <button class="buttons" id="load-6">6-engine</button>
     </div>
     <div class="editor">
       <textarea id="jsonnet-code" name="jsonnet-code">{{printf "%s" .Code}}</textarea>
@@ -27,66 +30,83 @@
     </div>
   </div>
 
-<script>
-  // Register JS needed to colorize our jsonnet code
-  var editor = CodeMirror.fromTextArea(document.getElementById("jsonnet-code"), {
-    mode: {name: "jsonnet"},
-    lineNumbers: true,
-    indentUnit: 2,
-    matchBrackets: true
-  });
-  var render = CodeMirror.fromTextArea(document.getElementById("javascript-code"), {
-    lineNumbers: true,
-    indentUnit: 2,
-    matchBrackets: true,
-    readonly: "nocursor"
-  });
+  <script>
+    // Register JS needed to colorize our jsonnet code
+    var editor = CodeMirror.fromTextArea(document.getElementById("jsonnet-code"), {
+      mode: { name: "jsonnet" },
+      lineNumbers: true,
+      indentUnit: 2,
+      matchBrackets: true
+    });
+    var render = CodeMirror.fromTextArea(document.getElementById("javascript-code"), {
+      lineNumbers: true,
+      indentUnit: 2,
+      matchBrackets: true,
+      readonly: "nocursor"
+    });
 
-  // Setup AJAX requests on buttons
-  var compile = function() {
-    var formData = new FormData();
-    formData.append("jsonnet", editor.getValue());
+    // Setup AJAX requests on buttons
+    var compile = function () {
+      var formData = new FormData();
+      formData.append("jsonnet", editor.getValue());
 
-    xhr = new XMLHttpRequest();
-    xhr.open('POST', '/backend/compile');
+      xhr = new XMLHttpRequest();
+      xhr.open('POST', '/backend/compile');
 
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        render.setValue(xhr.responseText);
-      } else if (xhr.status !== 200) {
-        console.log('Request failed with error: ' + xhr.responseText);
-      }
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          render.setValue(xhr.responseText);
+        } else if (xhr.status !== 200) {
+          console.log('Request failed with error: ' + xhr.responseText);
+        }
+      };
+
+      xhr.send(formData);
     };
 
-    xhr.send(formData);
-  };
+    var store = function () {
+      var formData = new FormData();
+      formData.append("jsonnet", editor.getValue());
 
-  var store = function() {
-    var formData = new FormData();
-    formData.append("jsonnet", editor.getValue());
+      xhr = new XMLHttpRequest();
+      xhr.open('POST', '/backend/share');
 
-    xhr = new XMLHttpRequest();
-    xhr.open('POST', '/backend/share');
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          console.log("share link: " + xhr.responseText);
+          document.getElementById("share-link").innerHTML = xhr.responseText;
+        } else if (xhr.status !== 200) {
+          console.log('Request failed with error: ' + xhr.responseText);
+        }
+      };
 
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        console.log("share link: " + xhr.responseText);
-        document.getElementById("share-link").innerHTML = xhr.responseText;
-      } else if (xhr.status !== 200) {
-        console.log('Request failed with error: ' + xhr.responseText);
-      }
+      xhr.send(formData);
     };
 
-    xhr.send(formData);
-  };
+    var load = function (filename) {
+      var xmlhttp, text;
+      xmlhttp = new XMLHttpRequest();
+      xmlhttp.open('GET', 'static/demo/' + filename, false);
+      xmlhttp.send();
+      editor.setValue(xmlhttp.responseText);
+    }
 
-  // Setup event listeners
-  var run = document.getElementById("run-btn");
-  run.addEventListener("click", compile);
+    // Setup event listeners
+    var run = document.getElementById("run-btn");
+    run.addEventListener("click", compile);
 
-  var share = document.getElementById("share-btn");
-  share.addEventListener("click", store);
-</script>
+    editor.on("change", compile);
+
+    var share = document.getElementById("share-btn");
+    share.addEventListener("click", function () { document.documentElement.requestFullscreen() });
+
+    document.getElementById("load-1").addEventListener("click", function () { load("1-variables.jsonnet") });
+    document.getElementById("load-2").addEventListener("click", function () { load("2-functions.jsonnet") });
+    document.getElementById("load-3").addEventListener("click", function () { load("3-plus.jsonnet") });
+    document.getElementById("load-4").addEventListener("click", function () { load("4-mixin.jsonnet") });
+    document.getElementById("load-5").addEventListener("click", function () { load("5-template.jsonnet") });
+    document.getElementById("load-6").addEventListener("click", function () { load("6-engine.jsonnet") });
+  </script>
 </body>
 
 </html>

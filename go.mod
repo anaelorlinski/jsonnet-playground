@@ -1,8 +1,5 @@
-module cgit.xrt0x.com/xrt0x/jsonnet-playground
+module github.com/anaelorlinski/jsonnet-playground
 
-require (
-	github.com/go-sql-driver/mysql v1.4.1
-	github.com/google/go-jsonnet v0.16.0
-)
+require github.com/google/go-jsonnet v0.17.0
 
 go 1.13
